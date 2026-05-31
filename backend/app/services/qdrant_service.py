@@ -51,3 +51,15 @@ def store_chunks(chunks, embeddings, video_id):
     )
 
     return len(points)
+def search_chunks(query_embedding, limit=5):
+
+    results = client.query_points(
+        collection_name=COLLECTION_NAME,
+        query=query_embedding,
+        limit=limit
+    )
+
+    return [
+        point.payload
+        for point in results.points
+    ]
