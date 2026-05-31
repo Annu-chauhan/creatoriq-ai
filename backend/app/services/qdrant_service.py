@@ -3,7 +3,7 @@ from qdrant_client.models import Distance, VectorParams
 from qdrant_client.models import PointStruct
 import uuid
 
-client = QdrantClient(":memory:")
+client = QdrantClient(path="./qdrant_data")
 
 COLLECTION_NAME = "video_chunks"
 
@@ -52,6 +52,8 @@ def store_chunks(chunks, embeddings, video_id):
 
     return len(points)
 def search_chunks(query_embedding, limit=5):
+
+    create_collection()
 
     results = client.query_points(
         collection_name=COLLECTION_NAME,
