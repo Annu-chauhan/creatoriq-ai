@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.models.video import VideoRequest
 from app.services.metadata_service import extract_youtube_metadata
+from app.services.transcript_service import extract_transcript
 
 router = APIRouter()
 
@@ -14,3 +15,11 @@ async def get_metadata(request: VideoRequest):
     )
 
     return metadata
+
+
+@router.post("/youtube-transcript")
+async def get_transcript(request: VideoRequest):
+
+    return extract_transcript(
+        request.youtube_url
+    )
