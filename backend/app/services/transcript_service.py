@@ -8,18 +8,36 @@ def get_video_id(url: str):
 
 
 def extract_transcript(url: str):
-
     video_id = get_video_id(url)
 
-    transcript = YouTubeTranscriptApi.get_transcript(
-        video_id
-    )
+    try:
+        ytt_api = YouTubeTranscriptApi()
 
-    full_text = " ".join(
-        [item["text"] for item in transcript]
-    )
+        # Try English first
+        try:
+            transcript = ytt_api.fetch(
+                video_id,
+                languages=["en"]
+            )
+        except:
+            # Fallback to Hindi
+            transcript = ytt_api.fetch(
+                video_id,
+                languages=["hi"]
+            )
 
-    return {
-        "video_id": video_id,
-        "transcript": full_text
-    }
+        full_text = " ".join(
+            [snippet.text for snippet in transcript]
+        )
+
+        return {
+            "video_id": video_id,
+            "language": transcript.language,
+            "transcript": full_text
+        }
+
+    except Exception as e:
+        return {
+            "video_id": video_id,
+            "error": str(e)
+        }
