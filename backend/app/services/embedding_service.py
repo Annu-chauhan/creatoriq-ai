@@ -6,6 +6,9 @@ model = SentenceTransformer(
 
 def create_embeddings(chunks):
 
-    embeddings = model.encode(chunks)
+    embeddings = model.encode(
+        chunks,
+        normalize_embeddings=True
+    )
 
-    return embeddings
+    return embeddings.tolist()

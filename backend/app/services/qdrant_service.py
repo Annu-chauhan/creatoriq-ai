@@ -1,5 +1,7 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
+from qdrant_client.models import PointStruct
+import uuid
 
 client = QdrantClient(":memory:")
 
@@ -26,3 +28,26 @@ def create_collection():
         )
 
     return True
+def store_chunks(chunks, embeddings, video_id):
+
+    points = []
+
+    for chunk, embedding in zip(chunks, embeddings):
+
+        points.append(
+            PointStruct(
+                id=str(uuid.uuid4()),
+                vector=embedding,
+                payload={
+                    "video_id": video_id,
+                    "text": chunk
+                }
+            )
+        )
+
+    client.upsert(
+        collection_name=COLLECTION_NAME,
+        points=points
+    )
+
+    return len(points)
