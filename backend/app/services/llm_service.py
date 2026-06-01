@@ -13,53 +13,75 @@ client = genai.Client(
 
 def analyze_creator(transcript):
 
-    prompt = f"""
-You are a Creator Intelligence Analyst.
+    transcript_lower = transcript.lower()
 
-Analyze the following transcript and provide:
+    niche = "General Content"
 
-1. Content Niche
-2. Creator Style
-3. Target Audience
-4. Engagement Hooks
-5. Creator Strengths
-6. Creator Weaknesses
+    if any(word in transcript_lower for word in [
+        "python", "coding", "programming",
+        "software", "developer", "machine learning",
+        "artificial intelligence", "ai"
+    ]):
+        niche = "Technology"
 
-Transcript:
-{transcript}
-"""
+    elif any(word in transcript_lower for word in [
+        "fitness", "workout", "gym",
+        "exercise", "weight loss"
+    ]):
+        niche = "Fitness"
 
-    try:
+    elif any(word in transcript_lower for word in [
+        "business", "startup", "entrepreneur",
+        "marketing", "sales"
+    ]):
+        niche = "Business"
 
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
-        )
+    elif any(word in transcript_lower for word in [
+        "study", "education", "student",
+        "learning", "course"
+    ]):
+        niche = "Education"
 
-        return {
-            "source": "gemini",
-            "analysis": response.text
+    elif any(word in transcript_lower for word in [
+        "finance", "stock", "investing",
+        "money", "crypto"
+    ]):
+        niche = "Finance"
+
+    audience = "General Audience"
+
+    if niche == "Technology":
+        audience = "Developers, Students, Tech Enthusiasts"
+
+    elif niche == "Fitness":
+        audience = "Fitness Enthusiasts, Gym Goers"
+
+    elif niche == "Business":
+        audience = "Entrepreneurs, Professionals"
+
+    elif niche == "Education":
+        audience = "Students and Learners"
+
+    elif niche == "Finance":
+        audience = "Investors and Finance Enthusiasts"
+
+    return {
+        "source": "fallback",
+        "analysis": {
+            "content_niche": niche,
+            "creator_style": "Informative",
+            "target_audience": audience,
+            "engagement_hooks": [
+                "Direct introduction",
+                "Simple language"
+            ],
+            "strengths": [
+                "Easy to understand",
+                "Clear communication"
+            ],
+            "weaknesses": [
+                "Limited storytelling",
+                "Limited emotional hooks"
+            ]
         }
-
-    except Exception:
-
-        return {
-            "source": "fallback",
-            "analysis": {
-                "content_niche": "General Content",
-                "creator_style": "Informative",
-                "target_audience": "General Audience",
-                "engagement_hooks": [
-                    "Direct introduction",
-                    "Simple language"
-                ],
-                "strengths": [
-                    "Easy to understand",
-                    "Clear communication"
-                ],
-                "weaknesses": [
-                    "Limited storytelling",
-                    "Limited emotional hooks"
-                ]
-            }
-        }
+    }

@@ -1,20 +1,31 @@
-def generate_strategy(transcript):
+def generate_strategy(
+    transcript,
+    creator_analysis
+):
+
+    niche = creator_analysis["analysis"][
+        "content_niche"
+    ]
 
     return {
         "content_ideas": [
-            "Top 5 Facts Related To This Topic",
-            "Beginner Guide Series",
-            "Common Mistakes People Make"
+            f"Top 5 {niche} Facts",
+            f"Beginner Guide To {niche}",
+            f"Common {niche} Mistakes"
         ],
+
         "viral_hooks": [
-            "Most people don't know this...",
-            "You won't believe what happened next...",
-            "This changes everything..."
+            f"Most people don't know this about {niche}",
+            f"The biggest mistake in {niche}",
+            f"This changes everything in {niche}"
         ],
+
         "growth_opportunities": [
             "Create Shorts",
-            "Add storytelling",
-            "Improve opening hook"
+            "Improve storytelling",
+            "Add stronger hooks"
         ],
-        "posting_strategy": "3 videos per week"
+
+        "posting_strategy":
+            "3 videos per week"
     }

@@ -1,21 +1,79 @@
-def calculate_brand_match(transcript, brand_category):
+def calculate_brand_match(
+    transcript,
+    creator_analysis,
+    brand_category
+):
 
-    brand_category = brand_category.lower()
+    niche = creator_analysis[
+        "analysis"
+    ]["content_niche"]
 
     score = 50
+
     reasons = []
 
-    if brand_category == "education":
-        score += 30
+    if niche.lower() in brand_category.lower():
+
+        score += 40
+
         reasons.append(
-            "Educational and informative content"
+            f"Strong alignment with {brand_category}"
         )
 
     if len(transcript) > 500:
+
         score += 10
+
         reasons.append(
-            "Sufficient content depth"
+            "High content depth"
         )
+
+    recommended_brands = []
+
+    if niche == "Technology":
+        recommended_brands = [
+            "OpenAI",
+            "GitHub",
+            "Google Cloud",
+            "Microsoft",
+            "NVIDIA"
+        ]
+
+    elif niche == "Fitness":
+        recommended_brands = [
+            "Nike",
+            "MyProtein",
+            "Cult.fit",
+            "Adidas",
+            "Fitbit"
+        ]
+
+    elif niche == "Business":
+        recommended_brands = [
+            "HubSpot",
+            "Notion",
+            "Shopify",
+            "Zoho",
+            "Salesforce"
+        ]
+
+    elif niche == "Education":
+        recommended_brands = [
+            "Coursera",
+            "Udemy",
+            "Unacademy",
+            "Physics Wallah",
+            "Scaler"
+        ]
+
+    elif niche == "Finance":
+        recommended_brands = [
+            "Groww",
+            "Zerodha",
+            "Upstox",
+            "Angel One",
+            "CoinDCX"
+        ]
 
     score = min(score, 100)
 
@@ -30,6 +88,7 @@ def calculate_brand_match(transcript, brand_category):
         "creator_score": score,
         "brand_fit": brand_fit,
         "audience_match": "Good",
-        "sponsorship_potential": "Medium",
+        "sponsorship_potential": "High",
+        "recommended_brands": recommended_brands,
         "reasons": reasons
     }
