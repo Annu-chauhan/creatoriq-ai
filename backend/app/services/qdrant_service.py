@@ -1,6 +1,10 @@
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams
-from qdrant_client.models import PointStruct
+from qdrant_client.models import (
+    Distance,
+    VectorParams,
+    PointStruct
+)
+
 import uuid
 
 client = QdrantClient(":memory:")
@@ -28,11 +32,21 @@ def create_collection():
         )
 
     return True
-def store_chunks(chunks, embeddings, video_id):
+
+
+def store_chunks(
+    chunks,
+    embeddings,
+    video_id
+):
+
+    create_collection()
 
     points = []
 
-    for chunk, embedding in zip(chunks, embeddings):
+    for idx, (chunk, embedding) in enumerate(
+        zip(chunks, embeddings)
+    ):
 
         points.append(
             PointStruct(
@@ -40,7 +54,8 @@ def store_chunks(chunks, embeddings, video_id):
                 vector=embedding,
                 payload={
                     "video_id": video_id,
-                    "text": chunk
+                    "chunk_id": idx,
+                    "chunk": chunk
                 }
             )
         )
@@ -51,7 +66,12 @@ def store_chunks(chunks, embeddings, video_id):
     )
 
     return len(points)
-def search_chunks(query_embedding, limit=5):
+
+
+def search_chunks(
+    query_embedding,
+    limit=5
+):
 
     create_collection()
 
@@ -60,6 +80,9 @@ def search_chunks(query_embedding, limit=5):
         query=query_embedding,
         limit=limit
     )
+
+    print("QDRANT RESULTS:")
+    print(results)
 
     return [
         point.payload

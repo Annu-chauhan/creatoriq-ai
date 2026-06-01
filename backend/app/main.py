@@ -10,6 +10,7 @@ from app.api.content_strategy import router as content_strategy_router
 from app.api.brand_match import router as brand_match_router
 from app.api.growth_audit import router as growth_audit_router
 from app.api.creator_dashboard import router as creator_dashboard_router
+from app.api.chat import (router as chat_router)
 
 
 app = FastAPI(
@@ -37,7 +38,7 @@ app.include_router(content_strategy_router)
 app.include_router(brand_match_router)
 app.include_router(growth_audit_router)
 app.include_router(creator_dashboard_router)
-
+app.include_router(chat_router)
 
 @app.get("/")
 async def root():
