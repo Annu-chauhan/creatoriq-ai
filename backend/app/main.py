@@ -6,6 +6,7 @@ from app.api.ingest import router as ingest_router
 from app.api.search import router as search_router
 from app.api.creator_analysis import (router as creator_analysis_router)
 from app.api.content_strategy import (router as content_strategy_router)
+from app.api.brand_match import (router as brand_match_router)
 
 
 app = FastAPI(
@@ -19,7 +20,7 @@ app.include_router(ingest_router)
 app.include_router(search_router)
 app.include_router(creator_analysis_router)
 app.include_router(content_strategy_router)
-
+app.include_router(brand_match_router)
 @app.get("/")
 async def root():
     return {
