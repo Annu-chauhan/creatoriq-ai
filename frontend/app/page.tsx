@@ -7,6 +7,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [dashboard, setDashboard] = useState<any>(null);
 
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+
   const analyzeCreator = async () => {
     if (!url) {
       alert("Please enter a YouTube URL");
@@ -43,6 +47,39 @@ export default function Home() {
     }
   };
 
+  const askQuestion = async () => {
+    if (!question) {
+      alert("Please enter a question");
+      return;
+    }
+
+    try {
+      setChatLoading(true);
+
+      const response = await fetch(
+        "http://127.0.0.1:8001/chat",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            question,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      setAnswer(data.answer);
+    } catch (error) {
+      console.error(error);
+      alert("Chat failed");
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-5xl mx-auto">
@@ -74,11 +111,13 @@ export default function Home() {
 
         {dashboard && (
           <>
-            <div className="grid grid-cols-3 gap-4 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+
               <div className="bg-white p-6 rounded-xl shadow">
                 <h3 className="text-gray-500">
                   Health Score
                 </h3>
+
                 <p className="text-4xl font-bold">
                   {dashboard.creator_health_score}
                 </p>
@@ -88,6 +127,7 @@ export default function Home() {
                 <h3 className="text-gray-500">
                   Growth Score
                 </h3>
+
                 <p className="text-4xl font-bold">
                   {dashboard.growth_audit?.growth_score}
                 </p>
@@ -97,10 +137,12 @@ export default function Home() {
                 <h3 className="text-gray-500">
                   Brand Score
                 </h3>
+
                 <p className="text-4xl font-bold">
                   {dashboard.brand_match?.creator_score}
                 </p>
               </div>
+
             </div>
 
             <div className="mt-6 bg-white p-6 rounded-xl shadow">
@@ -175,6 +217,42 @@ export default function Home() {
                 )}
               </ul>
             </div>
+
+            <div className="mt-6 bg-white p-6 rounded-xl shadow">
+              <h2 className="text-2xl font-bold">
+                Ask Creator Questions
+              </h2>
+
+              <p className="text-gray-500 mt-2">
+                Chat with the creator's content using AI
+              </p>
+
+              <input
+                type="text"
+                placeholder="What is this creator mainly talking about?"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                className="w-full border p-4 rounded-lg mt-4"
+              />
+
+              <button
+                onClick={askQuestion}
+                className="w-full bg-blue-600 text-white p-4 rounded-lg mt-4"
+              >
+                {chatLoading ? "Thinking..." : "Ask AI"}
+              </button>
+
+              {answer && (
+                <div className="mt-4 bg-gray-100 p-4 rounded-lg">
+                  <h3 className="font-bold mb-2">
+                    AI Answer
+                  </h3>
+
+                  <p>{answer}</p>
+                </div>
+              )}
+            </div>
+
           </>
         )}
       </div>
