@@ -6,9 +6,7 @@ from app.services.growth_audit_service import generate_growth_audit
 
 def generate_dashboard(transcript):
 
-    creator_analysis = analyze_creator(
-        transcript
-    )
+    creator_analysis = analyze_creator(transcript)
 
     content_strategy = generate_strategy(
         transcript,
@@ -18,7 +16,7 @@ def generate_dashboard(transcript):
     brand_match = calculate_brand_match(
         transcript,
         creator_analysis,
-        "education"
+        creator_analysis["analysis"]["content_niche"]
     )
 
     growth_audit = generate_growth_audit(
@@ -28,8 +26,7 @@ def generate_dashboard(transcript):
 
     creator_health_score = (
         growth_audit["growth_score"]
-        +
-        brand_match["creator_score"]
+        + brand_match["creator_score"]
     ) // 2
 
     dashboard_summary = (
