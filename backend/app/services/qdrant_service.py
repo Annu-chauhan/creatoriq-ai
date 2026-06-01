@@ -3,7 +3,7 @@ from qdrant_client.models import Distance, VectorParams
 from qdrant_client.models import PointStruct
 import uuid
 
-client = QdrantClient(path="./qdrant_data")
+client = QdrantClient(":memory:")
 
 COLLECTION_NAME = "video_chunks"
 

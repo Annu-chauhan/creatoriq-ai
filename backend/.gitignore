@@ -1,0 +1,8 @@
+venv/
+.env
+qdrant_data/
+**pycache**/
+*.pyc
+.idea/
+.vscode/
+test_gemini.py
