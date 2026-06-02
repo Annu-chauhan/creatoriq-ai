@@ -37,10 +37,14 @@ def create_collection():
 def store_chunks(
     chunks,
     embeddings,
-    video_id
+    video_id,
+    metadata=None
 ):
 
     create_collection()
+
+    if metadata is None:
+        metadata = {}
 
     points = []
 
@@ -55,7 +59,19 @@ def store_chunks(
                 payload={
                     "video_id": video_id,
                     "chunk_id": idx,
-                    "chunk": chunk
+                    "chunk": chunk,
+
+                    # metadata
+                    "creator": metadata.get("creator"),
+                    "views": metadata.get("views"),
+                    "likes": metadata.get("likes"),
+                    "comments": metadata.get("comments"),
+                    "duration": metadata.get("duration"),
+                    "upload_date": metadata.get("upload_date"),
+                    "hashtags": metadata.get("hashtags"),
+                    "engagement_rate": metadata.get(
+                        "engagement_rate"
+                    )
                 }
             )
         )
@@ -81,10 +97,22 @@ def search_chunks(
         limit=limit
     )
 
-    print("QDRANT RESULTS:")
-    print(results)
-
     return [
-        point.payload
+        {
+            "video_id": point.payload.get("video_id"),
+            "chunk_id": point.payload.get("chunk_id"),
+            "chunk": point.payload.get("chunk"),
+
+            "creator": point.payload.get("creator"),
+            "views": point.payload.get("views"),
+            "likes": point.payload.get("likes"),
+            "comments": point.payload.get("comments"),
+            "duration": point.payload.get("duration"),
+            "upload_date": point.payload.get("upload_date"),
+            "hashtags": point.payload.get("hashtags"),
+            "engagement_rate": point.payload.get(
+                "engagement_rate"
+            )
+        }
         for point in results.points
     ]

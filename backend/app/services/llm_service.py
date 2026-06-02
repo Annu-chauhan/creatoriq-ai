@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import json
 
+
 load_dotenv()
 
 client = genai.Client(
@@ -33,7 +34,7 @@ def analyze_creator(transcript):
         """
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.5-flash",
             contents=prompt
         )
 
@@ -60,29 +61,41 @@ def analyze_creator(transcript):
         niche = "General Content"
 
         if any(word in transcript_lower for word in [
-            "python", "coding", "programming",
-            "software", "developer",
-            "machine learning", "ai"
+            "python",
+            "coding",
+            "programming",
+            "software",
+            "developer",
+            "machine learning",
+            "ai"
         ]):
             niche = "Technology"
 
         elif any(word in transcript_lower for word in [
-            "fitness", "gym", "workout"
+            "fitness",
+            "gym",
+            "workout"
         ]):
             niche = "Fitness"
 
         elif any(word in transcript_lower for word in [
-            "business", "startup", "marketing"
+            "business",
+            "startup",
+            "marketing"
         ]):
             niche = "Business"
 
         elif any(word in transcript_lower for word in [
-            "education", "study", "student"
+            "education",
+            "study",
+            "student"
         ]):
             niche = "Education"
 
         elif any(word in transcript_lower for word in [
-            "finance", "stocks", "crypto"
+            "finance",
+            "stocks",
+            "crypto"
         ]):
             niche = "Finance"
 
@@ -102,4 +115,50 @@ def analyze_creator(transcript):
                     "Limited storytelling"
                 ]
             }
+        }
+
+def compare_creators(
+    transcript_a,
+    transcript_b
+):
+
+    try:
+
+        prompt = f"""
+        Compare these two creator videos.
+
+        VIDEO A:
+        {transcript_a[:6000]}
+
+        VIDEO B:
+        {transcript_b[:6000]}
+
+        Analyze:
+
+        1. Hook Comparison
+        2. Audience Comparison
+        3. Content Style Comparison
+        4. Which video is likely to get better engagement and why
+        5. What Video B can learn from Video A
+        6. Growth Recommendations
+
+        Return clean readable text.
+        """
+
+        response = client.models.generate_content(
+            model="gemini-3.5-flash",
+            contents=prompt
+        )
+
+        return {
+            "comparison": response.text
+        }
+
+    except Exception as e:
+
+        print("COMPARE ERROR:", e)
+
+        return {
+            "comparison":
+            "Comparison could not be generated."
         }

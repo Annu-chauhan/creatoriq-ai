@@ -6,6 +6,7 @@ export default function Home() {
   const API_URL = "http://127.0.0.1:8000";
 
   const [url, setUrl] = useState("");
+  const [instagramUrl, setInstagramUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [dashboard, setDashboard] = useState<any>(null);
 
@@ -22,10 +23,10 @@ export default function Home() {
   const [insightsLoading, setInsightsLoading] = useState(false);
 
   const analyzeCreator = async () => {
-    if (!url) {
-      alert("Please enter a YouTube URL");
-      return;
-    }
+   if (!url && !instagramUrl) {
+  alert("Please enter a YouTube or Instagram URL");
+  return;
+}
 
     try {
       setLoading(true);
@@ -38,9 +39,9 @@ export default function Home() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            youtube_url: url,
-            instagram_url: "",
-          }),
+          youtube_url: url,
+          instagram_url: instagramUrl,
+      }),
         }
       );
 
@@ -55,36 +56,66 @@ export default function Home() {
   };
 
   const askQuestion = async () => {
-    if (!question) {
-      alert("Please enter a question");
-      return;
+
+  if (!question) {
+    alert("Please enter a question");
+    return;
+  }
+
+  try {
+
+    setChatLoading(true);
+    setAnswer("");
+
+    const response = await fetch(
+      `${API_URL}/chat-stream`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: question,
+        }),
+      }
+    );
+
+    const reader =
+      response.body?.getReader();
+
+    if (!reader) return;
+
+    let result = "";
+
+    while (true) {
+
+      const {
+        done,
+        value
+      } = await reader.read();
+
+      if (done) break;
+
+      const chunk =
+        new TextDecoder().decode(value);
+
+      result += chunk;
+
+      setAnswer(result);
     }
 
-    try {
-      setChatLoading(true);
+  } catch (error) {
 
-      const response = await fetch(
-        `${API_URL}/chat`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            question,
-          }),
-        }
-      );
+    console.error(error);
 
-      const data = await response.json();
-      setAnswer(data.answer);
-    } catch (error) {
-      console.error(error);
-      alert("Chat failed");
-    } finally {
-      setChatLoading(false);
-    }
-  };
+    alert("Chat failed");
+
+  } finally {
+
+    setChatLoading(false);
+  }
+};
+
 
   const compareVideos = async () => {
     try {
@@ -161,6 +192,15 @@ export default function Home() {
             onChange={(e) => setUrl(e.target.value)}
             className="w-full border p-4 rounded-lg"
           />
+          <input
+          type="text"
+          placeholder="Paste Instagram Reel URL"
+          value={instagramUrl}
+          onChange={(e) =>
+          setInstagramUrl(e.target.value)
+          }
+  className="w-full border p-4 rounded-lg mt-4"
+/>
 
           <button
             onClick={analyzeCreator}
@@ -204,6 +244,61 @@ export default function Home() {
                 {dashboard.dashboard_summary}
               </p>
             </div>
+            <div className="mt-6 bg-white p-6 rounded-xl shadow">
+  <h2 className="text-2xl font-bold">
+    Video Metadata
+  </h2>
+
+  <div className="mt-4 space-y-2">
+    <p>
+  <strong>Creator:</strong>{" "}
+  {dashboard.metadata?.creator}
+</p>
+
+<p>
+  <strong>Followers:</strong>{" "}
+  {dashboard.metadata?.followers}
+</p>
+
+          
+    <p>
+      <strong>Views:</strong>{" "}
+      {dashboard.metadata?.views}
+    </p>
+
+    <p>
+      <strong>Likes:</strong>{" "}
+      {dashboard.metadata?.likes}
+    </p>
+
+    <p>
+      <strong>Comments:</strong>{" "}
+      {dashboard.metadata?.comments}
+    </p>
+
+    <p>
+      <strong>Duration:</strong>{" "}
+      {dashboard.metadata?.duration}
+    </p>
+
+    <p>
+      <strong>Upload Date:</strong>{" "}
+      {dashboard.metadata?.upload_date}
+    </p>
+
+    <p>
+      <strong>Engagement Rate:</strong>{" "}
+      {dashboard.metadata?.engagement_rate}%
+    </p>
+
+    <p>
+      <strong>Hashtags:</strong>{" "}
+     {dashboard.metadata?.hashtags?.length
+  ? dashboard.metadata.hashtags.join(", ")
+  : "No hashtags available"}
+    </p>
+  </div>
+</div>
 
             <div className="mt-6 bg-white p-6 rounded-xl shadow">
               <h2 className="text-2xl font-bold">
@@ -265,7 +360,7 @@ export default function Home() {
                 onChange={(e) => setVideoA(e.target.value)}
                 className="w-full border p-4 rounded-lg mt-4"
               />
-
+            
               <input
                 type="text"
                 placeholder="Video B URL"
@@ -282,29 +377,97 @@ export default function Home() {
               </button>
 
               {comparison && (
-                <div className="mt-4">
-                  <p>
-                    <strong>Video A Engagement:</strong>{" "}
-                    {comparison.video_a?.engagement_rate}%
-                  </p>
+  <div className="mt-4">
 
-                  <p>
-                    <strong>Video B Engagement:</strong>{" "}
-                    {comparison.video_b?.engagement_rate}%
-                  </p>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                  <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded-lg mt-4">
-                    {comparison.comparison}
-                  </pre>
-                </div>
-              )}
-            </div>
+      <div className="bg-gray-100 p-4 rounded-lg">
+        <h3 className="font-bold text-lg">
+          Video A
+        </h3>
 
-            <div className="mt-6 bg-white p-6 rounded-xl shadow">
-              <h2 className="text-2xl font-bold">
-                AI Content Strategist
-              </h2>
+        <p>
+          <strong>Creator:</strong>{" "}
+          {comparison.video_a?.creator}
+        </p>
 
+        <p>
+        <strong>Followers:</strong>{" "}
+        {comparison.video_a?.followers}
+        </p>
+
+        <p>
+          <strong>Views:</strong>{" "}
+          {comparison.video_a?.views}
+        </p>
+
+        <p>
+          <strong>Likes:</strong>{" "}
+          {comparison.video_a?.likes}
+        </p>
+
+        <p>
+          <strong>Comments:</strong>{" "}
+          {comparison.video_a?.comments}
+        </p>
+
+        <p>
+          <strong>Engagement:</strong>{" "}
+          {comparison.video_a?.engagement_rate}%
+        </p>
+      </div>
+
+      <div className="bg-gray-100 p-4 rounded-lg">
+        <h3 className="font-bold text-lg">
+          Video B
+        </h3>
+
+        <p>
+          <strong>Creator:</strong>{" "}
+          {comparison.video_b?.creator}
+        </p>
+
+        <p>
+        <strong>Followers:</strong>{" "}
+        {comparison.video_b?.followers}
+        </p>
+
+        <p>
+          <strong>Views:</strong>{" "}
+          {comparison.video_b?.views}
+        </p>
+
+        <p>
+          <strong>Likes:</strong>{" "}
+          {comparison.video_b?.likes}
+        </p>
+
+        <p>
+          <strong>Comments:</strong>{" "}
+          {comparison.video_b?.comments}
+        </p>
+
+        <p>
+          <strong>Engagement:</strong>{" "}
+          {comparison.video_b?.engagement_rate}%
+        </p>
+      </div>
+
+    </div>
+
+    <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded-lg mt-4">
+      {comparison.comparison}
+    </pre>
+
+  </div>
+)}
+           
+</div>
+
+<div className="mt-6 bg-white p-6 rounded-xl shadow">
+  <h2 className="text-2xl font-bold">
+    AI Content Strategist
+  </h2>
               <button
                 onClick={generateInsights}
                 className="w-full bg-purple-600 text-white p-4 rounded-lg mt-4"

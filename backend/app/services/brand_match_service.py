@@ -8,24 +8,37 @@ def calculate_brand_match(
         "analysis"
     ]["content_niche"]
 
-    score = 50
+    score = 40
 
     reasons = []
 
     if niche.lower() in brand_category.lower():
 
-        score += 40
+        score += 25
 
         reasons.append(
             f"Strong alignment with {brand_category}"
         )
 
-    if len(transcript) > 500:
+    content_depth = min(
+        len(transcript) // 500,
+        20
+    )
+
+    score += content_depth
+
+    reasons.append(
+        f"Content depth score: {content_depth}"
+    )
+
+    if len(
+        creator_analysis["analysis"]["strengths"]
+    ) >= 3:
 
         score += 10
 
         reasons.append(
-            "High content depth"
+            "Strong creator strengths"
         )
 
     recommended_brands = []
@@ -76,6 +89,9 @@ def calculate_brand_match(
         ]
 
     score = min(score, 100)
+
+    print("BRAND SCORE:", score)
+    print("NICHE:", niche)
 
     if score >= 80:
         brand_fit = "High"

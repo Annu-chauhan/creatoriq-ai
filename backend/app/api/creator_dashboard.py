@@ -23,6 +23,10 @@ from app.services.qdrant_service import (
     store_chunks
 )
 
+from app.services.metadata_service import (
+    get_video_metadata
+)
+
 router = APIRouter()
 
 
@@ -31,25 +35,44 @@ async def creator_dashboard(
     request: VideoRequest
 ):
 
-    transcript_data = extract_transcript(
-        request.youtube_url
+    url = (
+        request.instagram_url
+        if request.instagram_url
+        else request.youtube_url
     )
 
-    print(transcript_data)
+    platform = (
+        "instagram"
+        if request.instagram_url
+        else "youtube"
+    )
+
+    transcript_data = extract_transcript(
+        url,
+        platform
+    )
 
     if "error" in transcript_data:
+
         return {
-            "video_id": transcript_data["video_id"],
+            "video_id": transcript_data.get(
+                "video_id"
+            ),
             "error": transcript_data["error"]
         }
 
     transcript = transcript_data["transcript"]
-    video_id = transcript_data["video_id"]
 
-    # Store transcript in Qdrant
+    video_id = transcript_data["video_id"]
+    metadata = get_video_metadata(
+    url
+    )
+    
     create_collection()
 
-    chunks = chunk_text(transcript)
+    chunks = chunk_text(
+        transcript
+    )
 
     embeddings = create_embeddings(
         chunks
@@ -58,7 +81,8 @@ async def creator_dashboard(
     store_chunks(
         chunks,
         embeddings,
-        video_id
+        video_id,
+        metadata
     )
 
     dashboard = generate_dashboard(
@@ -67,5 +91,6 @@ async def creator_dashboard(
 
     return {
         "video_id": video_id,
+        "metadata": metadata,
         **dashboard
     }

@@ -22,13 +22,25 @@ def retrieve_context(question):
 
     print("RESULTS:", results)
 
-    context = "\n\n".join(
-        [
+    context = ""
+
+    sources = []
+
+    for result in results:
+
+        context += (
             result["chunk"]
-            for result in results
-        ]
-    )
+            + "\n\n"
+        )
+
+        sources.append(
+            f'Video {result["video_id"]} - Chunk {result["chunk_id"]}'
+        )
 
     print("CONTEXT:", context)
+    print("SOURCES:", sources)
 
-    return context
+    return {
+        "context": context,
+        "sources": sources
+    }

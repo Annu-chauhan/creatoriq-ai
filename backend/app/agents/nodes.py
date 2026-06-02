@@ -2,6 +2,7 @@ from google import genai
 from dotenv import load_dotenv
 import os
 
+
 from app.services.retriever_service import (
     retrieve_context
 )
@@ -15,11 +16,13 @@ client = genai.Client(
 
 def retrieve_node(state):
 
-    context = retrieve_context(
+    retrieval = retrieve_context(
         state["question"]
     )
 
-    state["context"] = context
+    state["context"] = retrieval["context"]
+
+    state["sources"] = retrieval["sources"]
 
     return state
 
@@ -29,7 +32,8 @@ def answer_node(state):
     prompt = f"""
     You are CreatorIQ AI.
 
-    Use the retrieved context to answer the question.
+    Previous Conversation:
+    {state["chat_history"]}
 
     Context:
     {state["context"]}
@@ -37,14 +41,34 @@ def answer_node(state):
     Question:
     {state["question"]}
 
+    Use the context to answer.
+
+    If relevant, reference information from the retrieved sources.
     Give a detailed answer.
     """
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.5-flash",
         contents=prompt
     )
 
-    state["answer"] = response.text
+    answer = response.text
+
+    if state["sources"]:
+
+        answer += "\n\nSources:\n"
+
+        answer += "\n".join(
+            state["sources"]
+        )
+
+    state["answer"] = answer
+
+    state["chat_history"].append(
+        {
+            "question": state["question"],
+            "answer": response.text
+        }
+    )
 
     return state

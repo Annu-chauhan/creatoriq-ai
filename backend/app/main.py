@@ -11,7 +11,9 @@ from app.api.brand_match import router as brand_match_router
 from app.api.growth_audit import router as growth_audit_router
 from app.api.creator_dashboard import router as creator_dashboard_router
 from app.api.chat import (router as chat_router)
-
+from app.api.video_compare import (router as compare_router)
+from app.api.video_insights import (router as insights_router)
+from app.api.chat_stream import router as chat_stream_router
 
 app = FastAPI(
     title="CreatorIQ AI",
@@ -39,6 +41,10 @@ app.include_router(brand_match_router)
 app.include_router(growth_audit_router)
 app.include_router(creator_dashboard_router)
 app.include_router(chat_router)
+app.include_router(chat_stream_router)
+app.include_router(compare_router)
+app.include_router(insights_router)
+
 
 @app.get("/")
 async def root():

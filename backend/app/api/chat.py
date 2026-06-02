@@ -20,7 +20,9 @@ async def chat(
         {
             "question": request.question,
             "context": "",
-            "answer": ""
+            "answer": "",
+            "sources": [],
+            "chat_history": []
         },
         config={
             "configurable": {
@@ -31,5 +33,5 @@ async def chat(
 
     return {
         "answer": result["answer"],
-        "sources": result["context"]
+        "sources": result["sources"]
     }
